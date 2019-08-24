@@ -12,7 +12,11 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:true}));
 
 //DataBase connection
-mongoose.connect("mongodb://localhost:27017/coDB",{ useNewUrlParser: true });
+//mongoose.connect("mongodb://localhost:27017/coDB",{ useNewUrlParser: true });
+mongoose.connect("mongodb+srv://anand:unicornb1331@cluster0-0tquo.mongodb.net/coDB?retryWrites=true&w=majority");
+
+
+//https://coonl.herokuapp.com/
 
 //DataBase Collections
 var userCollection = mongoose.model("userDetails",{
@@ -65,7 +69,7 @@ app.post("/register",(req,res)=>{
 });
 
 
-// Dynamically alocated port in Heroku
+// Dynamically allocated port in Heroku
 app.listen(process.env.PORT || 3000, ()=>{
     console.log("Server Listening");
 });
