@@ -12,7 +12,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:true}));
 
 //DataBase connection
-mongoose.connect("mongodb://localhost:27017/coursesOnlineDB",{ useNewUrlParser: true });
+mongoose.connect("mongodb://localhost:27017/coDB",{ useNewUrlParser: true });
 
 //DataBase Collections
 var userCollection = mongoose.model("userDetails",{
@@ -65,7 +65,7 @@ app.post("/register",(req,res)=>{
 });
 
 
-// Server Listening
-app.listen(3000, ()=>{
+// Dynamically alocated port in Heroku
+app.listen(process.env.PORT || 3000, ()=>{
     console.log("Server Listening");
 });
