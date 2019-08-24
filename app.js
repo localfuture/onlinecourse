@@ -1,29 +1,53 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
+const session = require('express-session');
+const passport = require('passport');
+const passportLocalMongoose = require('passport-local-mongoose');
+
 const app = express();
 
-//EJS set
+//View Engine Set
 app.set("view engine","ejs");
+app.use(express.static(__dirname + "/public"));
 
 //Use 
-app.use(express.static(__dirname + "/public"));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:true}));
+app.use(session({
+    secret: "Our little secret.",
+    resave: false,
+    saveUninitialized: false
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 //DataBase connection
 //mongoose.connect("mongodb://localhost:27017/coDB",{ useNewUrlParser: true });
 mongoose.connect("mongodb+srv://anand:unicornb1331@cluster0-0tquo.mongodb.net/coDB?retryWrites=true&w=majority");
 
+mongoose.set('useCreateIndex', true);
+
 
 //https://coonl.herokuapp.com/
 
-//DataBase Collections
-var userCollection = mongoose.model("userDetails",{
-    name: String,
+// DataBase Schema
+const userSchema = new mongoose.Schema({
     email: String,
     password: String
 });
+
+userSchema.plugin(passportLocalMongoose);
+
+//DataBase Collections
+var userCollection = mongoose.model("userDetails",userSchema);
+
+//Simplified Passport/Passport-Local Configuration
+passport.use(userCollection.createStrategy());
+ 
+passport.serializeUser(userCollection.serializeUser());
+passport.deserializeUser(userCollection.deserializeUser());
 
 
 //Get Home Page
@@ -36,36 +60,58 @@ app.get("/login",(req,res)=>{
     res.render("login",{unsucessful: ""});
 });
 
-app.post("/login",(req,res)=>{
-    var email = req.body.email;
-    var password = req.body.password;
-    userCollection.findOne({email: email},(error,foundError)=>{
-        if (error){
-            console.log(error);
-        }else{
-            if(foundError.password === password){
-                res.render("home",{title:""});
-            }else{
-               res.render("login",{unsucessful: "Login Unsuccessful, please try again"});
-            }
-        }
-    });
+
+
+// Course Online Page
+app.get("/coursesOnline",(req,res)=>{
+    if (req.isAuthenticated()){
+        res.render("courseOnline",{title: "Courses Online"});   //if the user is authenticated and loged in
+    }else{
+        res.redirect("/login");
+    }
 });
 
+app.post("/login", function(req, res){
+
+    const user = new userCollection({
+      username: req.body.username,
+      password: req.body.password
+    });
+  
+    req.login(user, function(err){
+      if (err) {
+        console.log(err);
+      } else {
+        passport.authenticate("local")(req, res, function(){
+          res.redirect("/coursesOnline");
+        });
+      }
+    });
+  
+  });
+  
 //Register Page
 app.get("/register",(req,res)=>{
     res.render("register");
 });
 
 app.post("/register",(req,res)=>{
-    var user = userCollection(req.body);
-    user.save((error,data)=>{
+    userCollection.register({username: req.body.username}, req.body.password,(error,user)=>{
         if (error){
-            console.log("error in Registration :"+ error);
-        }else {
-            res.render("home",{title: "Welcome"});
+            console.log(error);
+            res.redirect("/register");
+        }else{
+            passport.authenticate("local")(req,res,()=>{
+               res.redirect("/coursesOnline"); 
+            })
         }
     });
+});
+
+//Log Out 
+app.get("/logout",(req,res)=>{
+   req.logout();
+   res.redirect("/");
 });
 
 
