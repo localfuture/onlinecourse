@@ -58,7 +58,7 @@ passport.serializeUser(userCollection.serializeUser());
 passport.deserializeUser(userCollection.deserializeUser());
 
 ////////////Get All Course Content API///////////////
-var courseContentDisplay = "http://localhost:3000/displayCourseContent";
+var courseContentDisplay = "https://coonl.herokuapp.com/displayCourseContent";
 
 app.get("/displayCourseContent",(req,res)=>{
     courseCollection.find((error,data)=>{
@@ -81,7 +81,7 @@ app.get("/",(req,res)=>{
 });
 
 ////////////////////// Single Course Display from Home Page///////////////////////////////
-var singleCourseDisplayApi = "http://localhost:3000/singleCourse/";
+var singleCourseDisplayApi = "https://coonl.herokuapp.com/singleCourse/";
 
 app.get("/singleCourse/:id",(req,res)=>{
     var x = req.params.id;
