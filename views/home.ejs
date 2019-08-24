@@ -1,2 +1,10 @@
 <%- include('header'); %>
+<h1>Courses Offered</h1>
+<div class="list-group">
+    <% for(var i =0; i< data.length; i++){%>
+    <a href="/courseView/<%= data[i]._id %>" class="list-group-item list-group-item-action">
+        <%= data[i].title %>
+    </a>
+    <%} %>
+</div>
 <%- include('footer'); %>

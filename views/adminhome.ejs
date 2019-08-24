@@ -1,0 +1,30 @@
+<%- include('courseHeader'); %>
+<form action="/createCourse" method="POST">
+    <div class="row">
+      <div class="col">
+        <label>Course Title</label>
+      </div>
+      <div class="col">
+        <input type="text" class="form-control" name="title">
+      </div>
+    </div>
+    <div class="row">
+        <div class="col">
+          <label>Course Description</label>
+        </div>
+        <div class="col">
+          <input type="text" class="form-control" name="description">
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <label>Content</label>
+        </div>
+        <div class="col">
+          <input type="text" class="form-control" name="content">
+        </div>
+      </div>
+     <button type="submit" style="float:right;display:block;margin-right:0px;clear:left;">Create Course</button>
+      
+  </form>
+<%- include('courseFooter'); %>

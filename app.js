@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
+const request = require('request');
 const session = require('express-session');
 const passport = require('passport');
 const passportLocalMongoose = require('passport-local-mongoose');
@@ -40,8 +41,15 @@ const userSchema = new mongoose.Schema({
 
 userSchema.plugin(passportLocalMongoose);
 
+const contentSchema =  new mongoose.Schema({
+    title: String,
+    description: String,
+    content: String
+});
+
 //DataBase Collections
-var userCollection = mongoose.model("userDetails",userSchema);
+var userCollection = mongoose.model("userdetails",userSchema);
+var courseCollection = mongoose.model("coursedetails",contentSchema);
 
 //Simplified Passport/Passport-Local Configuration
 passport.use(userCollection.createStrategy());
@@ -49,26 +57,80 @@ passport.use(userCollection.createStrategy());
 passport.serializeUser(userCollection.serializeUser());
 passport.deserializeUser(userCollection.deserializeUser());
 
+////////////Get All Course Content API///////////////
+var courseContentDisplay = "http://localhost:3000/displayCourseContent";
 
-//Get Home Page
+app.get("/displayCourseContent",(req,res)=>{
+    courseCollection.find((error,data)=>{
+        if (error){
+            console.log(error);
+        }else {
+            res.send(data);
+        }
+    });
+});
+
+///////////////////////////Get Home Page///////////////////////
 app.get("/",(req,res)=>{
-    res.render("home",{title:""});
+    request(courseContentDisplay,(error,response,body)=>{
+        console.log(error);
+        console.log(response);
+        var data = JSON.parse(body);
+        res.render("home",{title: "Home",data: data});
+    });
 });
 
-//Log In Page
-app.get("/login",(req,res)=>{
-    res.render("login",{unsucessful: ""});
+////////////////////// Single Course Display from Home Page///////////////////////////////
+var singleCourseDisplayApi = "http://localhost:3000/singleCourse/";
+
+app.get("/singleCourse/:id",(req,res)=>{
+    var x = req.params.id;
+    courseCollection.find({_id: x},(error,data)=>{
+        if (error) {
+            console.log(error);
+        } else {
+            res.send(data);
+        }
+    });
 });
 
+app.get("/courseView/:id",(req,res)=>{
+    var x =  req.params.id;
+    request(singleCourseDisplayApi + x,(error,response,body)=>{
+        console.log(error);
+        console.log(response);
+        var data = JSON.parse(body);
+        res.render("singleCourseViewHome",{title: "Course", data: data[0]});
+    });
 
+});
+//////////////////////////////////Full Course View Home //////////////////////////////////
+app.get("/fullCourseView/:id",(req,res)=>{
+    var x =  req.params.id;
+    request(singleCourseDisplayApi + x,(error,response,body)=>{
+        console.log(error);
+        console.log(response);
+        var data = JSON.parse(body);
+        if (req.isAuthenticated()){
+           
+        }else{
+            res.redirect("/login");
+        }
+    });
+});
 
-// Course Online Page
+///////////////////////////////// Course Online Page//////////////////////////////////////
 app.get("/coursesOnline",(req,res)=>{
     if (req.isAuthenticated()){
         res.render("courseOnline",{title: "Courses Online"});   //if the user is authenticated and loged in
     }else{
         res.redirect("/login");
     }
+});
+
+////////////////////////////////////////Login Page////////////////////////////////////////
+app.get("/login",(req,res)=>{
+    res.render("login",{unsucessful: ""});
 });
 
 app.post("/login", function(req, res){
@@ -90,7 +152,7 @@ app.post("/login", function(req, res){
   
   });
   
-//Register Page
+//////////////////////////////////////////Register Page//////////////////////////////
 app.get("/register",(req,res)=>{
     res.render("register");
 });
@@ -108,12 +170,29 @@ app.post("/register",(req,res)=>{
     });
 });
 
-//Log Out 
+///////////////////////////////////////////////Log Out//////////////////////////////////////// 
 app.get("/logout",(req,res)=>{
    req.logout();
    res.redirect("/");
 });
 
+
+//////////////////////////////////////// ADMIN Routes ////////////////////////////////
+app.get("/admin",(req,res)=>{
+    res.render("adminhome",{title: "Admin Home"});
+});
+
+app.post("/createCourse",(req,res)=>{
+    var course = new courseCollection(req.body);
+    course.save((error,data)=>{
+        if(error){
+            console.log(error);
+          }else{
+            console.log("New Course Inserted");
+            //res.send(data);
+          }
+    });
+});
 
 // Dynamically allocated port in Heroku
 app.listen(process.env.PORT || 3000, ()=>{
