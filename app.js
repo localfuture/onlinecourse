@@ -105,19 +105,19 @@ app.get("/courseView/:id",(req,res)=>{
 
 });
 //////////////////////////////////Full Course View Home //////////////////////////////////
-// app.get("/fullCourseView/:id",(req,res)=>{
-//     var x =  req.params.id;
-//     request(singleCourseDisplayApi + x,(error,response,body)=>{
-//         console.log(error);
-//         console.log(response);
-//         var data = JSON.parse(body);
-//         if (req.isAuthenticated()){
-           
-//         }else{
-//             res.redirect("/login");
-//         }
-//     });
-// });
+app.get("/fullCourseView/:id",(req,res)=>{
+    var x =  req.params.id;
+    request(singleCourseDisplayApi + x,(error,response,body)=>{
+        console.log(error);
+        console.log(response);
+        var data = JSON.parse(body);
+        if (req.isAuthenticated()){
+            res.render("fullCourseView",{title: "Courses", data: data[0]});
+        }else{
+            res.redirect("/login");
+        }
+    });
+});
 
 ///////////////////////////////// Course Online Page//////////////////////////////////////
 app.get("/coursesOnline",(req,res)=>{
