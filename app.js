@@ -27,9 +27,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 //DataBase connection
-/*mongoose.connect("mongodb://localhost:27017/coDB", {
-    useNewUrlParser: true
-});*/
+//mongoose.connect("mongodb://localhost:27017/coDB", {useNewUrlParser: true});
 
 mongoose.connect("mongodb+srv://anand:unicornb1331@cluster0-0tquo.mongodb.net/coDB?retryWrites=true&w=majority");
 
@@ -122,6 +120,8 @@ app.get("/courseView/:id", (req, res) => {
     });
 
 });
+
+
 //////////////////////////////////Full Course View Home //////////////////////////////////
 app.get("/fullCourseView/:id", (req, res) => {
     var x = req.params.id;
@@ -159,15 +159,21 @@ app.get("/coursesOnline", (req, res) => {
         console.log(response);
         var data = JSON.parse(body);
         if (req.isAuthenticated()) {
-            res.render("courseOnline", {
-                title: "Courses Online",
-                data: data
-            });
+            if (req.user.id === "5d627cff747e8107f0d87054") {
+                res.redirect("/admin");
+            } else {
+                res.render("courseOnline", {
+                    title: "Courses Online",
+                    data: data
+                });
+            }
+
         } else {
             res.redirect("/login");
         }
     });
 });
+
 
 app.get("/learn/:id", (req, res) => {
     if (req.isAuthenticated()) {
@@ -175,14 +181,14 @@ app.get("/learn/:id", (req, res) => {
         var userId = req.user.id;
         console.log(courseId);
         console.log(userId);
-        userCollection.findById(req.user.id,(error,foundUser)=>{
-            if(error){
+        userCollection.findById(req.user.id, (error, foundUser) => {
+            if (error) {
                 console.log(error);
-            }else{
-                if(foundUser){
+            } else {
+                if (foundUser) {
                     foundUser.course = courseId;
                     foundUser.approval = "0";
-                    foundUser.save(()=>{
+                    foundUser.save(() => {
                         res.redirect("/coursesOnline")
                     });
                 }
@@ -194,12 +200,14 @@ app.get("/learn/:id", (req, res) => {
 });
 
 ///////////////////////////////////////My Courses//////////////////////////////////////////
-app.get("/courseOnlineDisplay/:id",(req,res)=>{
+app.get("/courseOnlineDisplay/:id", (req, res) => {
     var x = req.params.id;
-    courseCollection.find({_id: x},(error,data)=>{
-        if(error){
+    courseCollection.find({
+        _id: x
+    }, (error, data) => {
+        if (error) {
             console.log(error);
-        }else{
+        } else {
             res.send(data);
         }
     });
@@ -207,31 +215,39 @@ app.get("/courseOnlineDisplay/:id",(req,res)=>{
 
 var myCourseViewApi = "https://coonl.herokuapp.com/courseOnlineDisplay/"
 
-app.get("/mycourses",(req,res)=>{
-    if (req.user.approval == 0){
-        res.render("myCoursesYetToApprove",{title: "My Courses", approval: "Courses Yet to be approved"});
-    }else {
-        request(myCourseViewApi + req.user.course,(error,response,body)=>{
+app.get("/mycourses", (req, res) => {
+    if (req.user.approval == 0) {
+        res.render("myCoursesYetToApprove", {
+            title: "My Courses",
+            approval: "Courses Yet to be approved"
+        });
+    } else {
+        request(myCourseViewApi + req.user.course, (error, response, body) => {
             console.log(error);
             console.log(response);
             var data = JSON.parse(body);
-            res.render("mycourses",{title: "My Courses", data: data[0], doubt: req.user.doubt, reply: req.user.reply});
+            res.render("mycourses", {
+                title: "My Courses",
+                data: data[0],
+                doubt: req.user.doubt,
+                reply: req.user.reply
+            });
         });
     }
 });
 
 //////////////////////////////////////My Doubt////////////////////////////////////////////
-app.post("/doubt",(req,res)=>{
+app.post("/doubt", (req, res) => {
     const submittedDoubt = req.body.doubt;
 
-    userCollection.findById(req.user.id,(error,foundUser)=>{
-        if (error){
+    userCollection.findById(req.user.id, (error, foundUser) => {
+        if (error) {
             console.log(error);
         } else {
-            if (foundUser){
+            if (foundUser) {
                 foundUser.doubt = submittedDoubt;
                 foundUser.reply = "";
-                foundUser.save(()=>{
+                foundUser.save(() => {
                     res.redirect("/mycourses");
                 });
             }
@@ -296,11 +312,20 @@ app.get("/logout", (req, res) => {
 
 
 //////////////////////////////////////// ADMIN Routes ////////////////////////////////
-app.get("/admin", (req, res) => {
-    res.render("adminhome", {
-        title: "Admin Home"
-    });
-});
+app.get("/admin",(req,res)=>{
+    res.render("adminhome",{title: "Admin Home"});
+    
+})
+
+/////////////////////////////////////// Create New Course////////////////////////////////
+app.get("/createCourse", (req, res) => {
+    request(courseContentDisplay,(error,response,body)=>{
+        console.log(error);
+        console.log(response);
+        var data = JSON.parse(body);
+        res.render("createNewCourse",{title: "Admin Home", data:data});
+    })
+})
 
 app.post("/createCourse", (req, res) => {
     var course = new courseCollection(req.body);
@@ -309,12 +334,72 @@ app.post("/createCourse", (req, res) => {
             console.log(error);
         } else {
             console.log("New Course Inserted");
-            //res.send(data);
+            res.redirect("/createCourse");
         }
     });
 });
 
-// Dynamically allocated port in Heroku
+////////////////////////////////////////////User Content Display Api////////////////////////
+app.get("/displayUserContent",(req,res)=>{
+    userCollection.find((error,data)=>{
+        if(error){
+            console.log(error);
+        }else{
+            res.send(data);
+        }
+    });
+});
+
+var userCollectionDisplay = "https://coonl.herokuapp.com/displayUserContent";
+
+//////////////////////////////////////////// Give Approval //////////////////////////////////
+app.get("/giveApproval", (req, res) => {
+    request(userCollectionDisplay,(error,response,body)=>{
+        console.log(error);
+        console.log(response);
+        var data = JSON.parse(body);
+        res.render("giveApproval", {title: "Give Approval", data:data});
+    });
+});
+
+app.post("/approve/:id",(req,res)=>{
+    var x = req.params.id;
+    console.log("user"+x);
+    userCollection.update({_id: x},{$set: {approval: "1"}},(error)=>{
+        if(!error){
+            console.log("Successfully updated article");
+            res.redirect("/giveApproval");
+        }else{
+            res.send(error);
+        }
+    });
+})
+
+//////////////////////////////////////////// Clear Doubt /////////////////////////////////////
+app.get("/clearDoubt",(req,res)=>{
+    request(userCollectionDisplay,(error,response,body)=>{
+        console.log(error);
+        console.log(response);
+        var data = JSON.parse(body);
+        res.render("clearDoubt", {title: "Clear Doubt", data:data});
+    });
+});
+
+app.post("/reply/:id",(req,res)=>{
+    var id = req.params.id;
+    var reply = req.body.reply;
+    userCollection.update({_id: id},{$set: {reply: reply}},(error)=>{
+        if(!error){
+            console.log("Successfully Replied");
+            res.redirect("/clearDoubt");
+        }else{
+            res.send(error);
+        }
+    });
+
+});
+
+//////////////////////////// Dynamically allocated port in Heroku/////////////////////////////
 app.listen(process.env.PORT || 3000, () => {
     console.log("Server Listening");
 });

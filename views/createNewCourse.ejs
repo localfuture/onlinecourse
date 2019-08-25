@@ -1,0 +1,49 @@
+<%- include('adminHeader'); %>
+<h1>Course List</h1>
+<table class="table">
+    <thead class="thead-dark">
+      <tr>
+        <th scope="col">Title</th>
+        <th scope="col">Description</th>
+        <th scope="col">Content</th>
+      </tr>
+    </thead>
+    <tbody class="tbody-light">
+    <% for(var i =0; i< data.length; i++){%>
+      <tr>
+        <td> <%= data[i].title %> </td>
+        <td> <%= data[i].description %> </td>
+        <td> <%= data[i].content %> </td>
+      </tr>
+    <%} %>
+    </tbody>
+  </table>
+  
+<form action="/createCourse" method="POST">
+    <div class="row">
+      <div class="col">
+        <label>Course Title</label>
+      </div>
+      <div class="col">
+        <input type="text" class="form-control" name="title">
+      </div>
+    </div>
+    <div class="row">
+        <div class="col">
+          <label>Course Description</label>
+        </div>
+        <div class="col">
+          <input type="text" class="form-control" name="description">
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <label>Content</label>
+        </div>
+        <div class="col">
+          <input type="text" class="form-control" name="content">
+        </div>
+      </div>
+     <button type="submit" style="float:right;display:block;margin-right:0px;clear:left;">Create Course</button> 
+  </form>
+<%- include('adminFooter'); %>
