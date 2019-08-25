@@ -5,7 +5,6 @@
         <tr>
             <th scope="col">Email</th>
             <th scope="col">Approval</th>
-            <th scope="col">Reply</th>
             <th scope="col"></th>
         </tr>
     </thead>
@@ -14,9 +13,7 @@
         <tr>
             <td> <%= data[i].username %> </td>
             <td> <%= data[i].approval %> </td>
-            <td> <%= data[i].reply %> </td>
-            <td> <a href="/approve/<%=data[i]._id %>" class="btn btn-secondary btn-lg active" role="button"
-                    aria-pressed="true">Approve</a></td>
+            <td> <a href="/approve/<%=data[i]._id %>" class="btn btn-secondary btn-lg active" role="button">Approve</a></td>
 
         </tr>
         <%} %>

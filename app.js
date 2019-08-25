@@ -362,7 +362,7 @@ app.get("/giveApproval", (req, res) => {
     });
 });
 
-app.post("/approve/:id",(req,res)=>{
+app.get("/approve/:id",(req,res)=>{
     var x = req.params.id;
     console.log("user"+x);
     userCollection.update({_id: x},{$set: {approval: "1"}},(error)=>{
