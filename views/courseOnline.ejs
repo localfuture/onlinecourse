@@ -1,8 +1,17 @@
 <%- include('courseHeader'); %>
+
+<a href="/mycourses" class="btn btn-primary">My Courses</a>
+<h1>Courses Offered</h1>
+<% for(var i=0; i< data.length; i++){%>
+<div class="card mx-5 my-5">
+    <div class="card-header">
+        <h4><%=data[i].title%></h4>   
+    </div>
+    <div class="card-body">
+        <h6 class="card-title"><%=data[i].description%></h6>
+        <p class="card-text"><%=data[i].content%></p>
+        <a href="/learn/<%=data[i]._id%>" class="btn btn-primary">Learn</a>
+    </div>
+</div>
+<%}%>
 <%- include('courseFooter'); %>
-
-
-
-
-
-

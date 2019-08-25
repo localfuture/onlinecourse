@@ -1,0 +1,30 @@
+<%- include('courseHeader'); %>
+<div class="jumbotron jumbotron-fluid">
+    <div class="container">
+        <h1 class="display-4"> <%= data.title %> </h1>
+        <p class="lead"> <%= data.description %> </p>
+        <hr class="my-4">
+        <p> <%= data.content %></p>
+    </div>
+</div>
+
+<div class="jumbotron jumbotron-fluid">
+    <div class="container">
+        <h1 class="display-5"> Doubt Asked</h1>
+        <p class="lead"> <%= doubt %> </p>
+        <p class="lead"> <%= reply %> </p>
+    </div>
+</div>
+
+<div class="container-fluid">
+    <form action="/doubt" method="POST">
+        <div class="form-group">
+            <label>Doubt</label>
+            <input class="form-control" type="text" name="doubt">
+            <button type="submit" class="btn btn-primary my-2"
+                style="float:right;display:block;margin-right:0px;clear:left;">Submit</button>
+        </div>
+    </form>
+</div>
+
+<%- include('courseFooter'); %>
